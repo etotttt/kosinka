@@ -1,0 +1,50 @@
+# Косынка — Тестовое задание
+
+Классический пасьянс на HTML/CSS/JS.
+
+## Как выполнить задание
+
+### 1. Сделайте Fork репозитория
+
+Нажмите кнопку **Fork** в правом верхнем углу этой страницы.
+
+![Fork button](https://docs.github.com/assets/cb-40742/mw-1440/images/help/repository/fork-button.webp)
+
+### 2. Клонируйте свой форк
+
+```bash
+git clone https://github.com/ВАШ_НИКНЕЙМ/kosinka.git
+cd kosinka
+```
+
+### 3. Создайте ветку для своей работы
+
+```bash
+git checkout -b feature/ваше-имя
+```
+
+Например: `feature/ivan-petrov`
+
+### 4. Внесите изменения
+
+Откройте `solitare.html` и выполните задание.
+
+### 5. Сохраните и запушьте
+
+```bash
+git add solitare.html
+git commit -m "Описание того, что вы сделали"
+git push origin feature/ваше-имя
+```
+
+### 6. Создайте Pull Request
+
+1. Зайдите в свой форк на GitHub
+2. Нажмите **Contribute → Open Pull Request**
+3. Убедитесь, что PR направлен в `etotttt/kosinka` ← `ваш-форк/feature/ваше-имя`
+4. В описании напишите кратко, что вы изменили
+5. Нажмите **Create Pull Request**
+
+---
+
+Вопросы? Пишите в issues или на почту.

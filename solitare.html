@@ -1,0 +1,2751 @@
+<!-- СТИЛИ -->
+<style>
+    /* Контейнер игры */
+    .solitaire-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0;
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      overflow: hidden;
+      position: relative;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+  
+    /* Заголовок */
+    #solitaire-widget .game-header {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+  
+    #solitaire-widget .game-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: solitaire-rotate 20s linear infinite;
+    }
+  
+    @keyframes solitaire-rotate {
+      from {
+        transform: rotate(0deg);
+      }
+  
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  
+    #solitaire-widget .game-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  
+    #solitaire-widget .game-subtitle {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+  
+    /* Игровое поле */
+    #solitaire-widget .game-content {
+      padding: 1rem;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+      min-height: 500px;
+      position: relative;
+    }
+  
+    /* Статистика */
+    #solitaire-widget .stats-container {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 0.75rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+  
+    #solitaire-widget .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+  
+    #solitaire-widget .stat-label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+  
+    #solitaire-widget .stat-value {
+      font-size: 1rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+  
+    #solitaire-widget .stat-value.moves {
+      color: #6366f1;
+    }
+  
+    #solitaire-widget .stat-value.timer {
+      color: #10b981;
+    }
+  
+  
+    /* Игровые зоны */
+    #solitaire-widget .game-board {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  
+    #solitaire-widget .top-area {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+  
+    #solitaire-widget .stock-waste {
+      display: flex;
+      gap: 0.5rem;
+    }
+  
+    #solitaire-widget .foundations {
+      display: flex;
+      gap: 0.5rem;
+    }
+  
+    #solitaire-widget .tableau-area {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.25rem;
+      min-height: 300px;
+    }
+  
+    /* Карты */
+    #solitaire-widget .card {
+      width: 60px;
+      height: 85px;
+      background: #fff;
+      border-radius: 0.375rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      position: absolute;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 3px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      user-select: none;
+      border: 1.5px solid #e2e8f0;
+      -webkit-tap-highlight-color: transparent;
+    }
+  
+    #solitaire-widget .card.face-down {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      border: none;
+    }
+  
+    #solitaire-widget .card.face-down::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 0.25rem;
+    }
+  
+    #solitaire-widget .card.dragging {
+      opacity: 0.8;
+      z-index: 1000 !important;
+      transform: scale(1.05);
+    }
+  
+    #solitaire-widget .card.selected {
+      box-shadow: 0 0 0 2px #fbbf24, 0 6px 12px rgba(251, 191, 36, 0.3);
+      transform: translateY(-2px);
+    }
+  
+    #solitaire-widget .card.touched {
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+  
+    /* Масти карт */
+    #solitaire-widget .card.hearts,
+    #solitaire-widget .card.diamonds {
+      color: #dc2626;
+    }
+  
+    #solitaire-widget .card.clubs,
+    #solitaire-widget .card.spades {
+      color: #1f2937;
+    }
+  
+    /* Слоты для карт */
+    #solitaire-widget .card-slot {
+      width: 60px;
+      height: 85px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1.5px dashed rgba(99, 102, 241, 0.25);
+      border-radius: 0.375rem;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+  
+    #solitaire-widget .card-slot.foundation {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+  
+    #solitaire-widget .card-slot.can-drop {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: #fbbf24;
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+      transform: scale(1.05);
+    }
+  
+    /* Стопки карт в таблице */
+    #solitaire-widget .tableau-pile {
+      position: relative;
+      min-height: 85px;
+      width: 60px;
+    }
+  
+    #solitaire-widget .tableau-pile .card {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  
+    /* Динамический отступ между картами */
+    #solitaire-widget .tableau-pile .card.face-down+.card {
+      margin-top: 12px !important;
+    }
+  
+    #solitaire-widget .tableau-pile .card:not(.face-down)+.card {
+      margin-top: 22px !important;
+    }
+  
+    #solitaire-widget .tableau-pile.compressed .card:not(.face-down)+.card {
+      margin-top: 18px !important;
+    }
+  
+    #solitaire-widget .tableau-pile.very-compressed .card:not(.face-down)+.card {
+      margin-top: 15px !important;
+    }
+  
+    /* Начальный экран */
+    #solitaire-widget .start-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+      min-height: 500px;
+    }
+  
+    #solitaire-widget .start-content {
+      flex: 1;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      overflow-y: auto;
+    }
+  
+    #solitaire-widget .rules-container {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      margin-bottom: 1.5rem;
+      max-width: 500px;
+      width: 100%;
+    }
+  
+    #solitaire-widget .rules-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f3f4f6;
+      margin-bottom: 1.25rem;
+      text-align: center;
+      position: relative;
+    }
+  
+    #solitaire-widget .rules-title::after {
+      content: '';
+      position: absolute;
+      bottom: -0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+      border-radius: 999px;
+    }
+  
+    #solitaire-widget .rules-grid {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+  
+    #solitaire-widget .rule-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+  
+    #solitaire-widget .rule-icon {
+      font-size: 1.25rem;
+      width: 1.75rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+  
+    #solitaire-widget .rule-text {
+      flex: 1;
+      color: #d1d5db;
+      line-height: 1.4;
+      font-size: 0.875rem;
+    }
+  
+    #solitaire-widget .start-button {
+      padding: 0.875rem 2.5rem;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      color: white;
+      border: none;
+      border-radius: 0.625rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+      -webkit-tap-highlight-color: transparent;
+    }
+  
+    #solitaire-widget .start-button:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+    }
+  
+    /* Кнопки управления */
+    #solitaire-widget .controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+  
+    #solitaire-widget .btn {
+      padding: 0.625rem 1rem;
+      border: none;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      -webkit-tap-highlight-color: transparent;
+    }
+  
+    #solitaire-widget .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      color: white;
+      box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+    }
+  
+    #solitaire-widget .btn-primary:active {
+      transform: scale(0.98);
+    }
+  
+    #solitaire-widget .btn-secondary {
+      background: #fff;
+      color: #6366f1;
+      border: 1.5px solid #6366f1;
+    }
+  
+    #solitaire-widget .btn-secondary:active {
+      background: #6366f1;
+      color: white;
+    }
+  
+    /* Сообщение о победе */
+    #solitaire-widget .win-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      z-index: 2000;
+      width: 90%;
+      max-width: 350px;
+    }
+  
+    #solitaire-widget .win-message h2 {
+      font-size: 1.5rem;
+      color: #10b981;
+      margin-bottom: 0.75rem;
+    }
+  
+    #solitaire-widget .win-message p {
+      color: #9ca3af;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+    }
+  
+    #solitaire-widget .win-stats {
+      background: #f8fafc;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+  
+    #solitaire-widget .win-stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+  
+    #solitaire-widget .win-stat-row:last-child {
+      margin-bottom: 0;
+    }
+  
+    #solitaire-widget .win-stat-label {
+      color: #9ca3af;
+    }
+  
+    #solitaire-widget .win-stat-value {
+      font-weight: 600;
+      color: #000000;
+    }
+  
+    #solitaire-widget .hidden {
+      display: none !important;
+    }
+  
+    /* Модальное окно для анализа */
+    #solitaire-widget .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2500;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1rem;
+      animation: fadeIn 0.2s ease;
+    }
+  
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+  
+      to {
+        opacity: 1;
+      }
+    }
+  
+    #solitaire-widget .modal-content {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      width: calc(100% - 2rem);
+      max-width: 800px;
+      height: calc(100% - 2rem);
+      max-height: calc(100vh - 2rem);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+  
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+  
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  
+    /* Адаптивность для планшетов */
+    @media (min-width: 481px) and (max-width: 768px) {
+      #solitaire-widget .card {
+        width: 70px;
+        height: 95px;
+        font-size: 1.3rem;
+      }
+  
+      #solitaire-widget .card-slot {
+        width: 70px;
+        height: 95px;
+      }
+  
+      #solitaire-widget .tableau-pile {
+        width: 70px;
+      }
+  
+      #solitaire-widget .tableau-pile .card:not(:first-child) {
+        margin-top: 22px;
+      }
+  
+      #solitaire-widget .game-content {
+        padding: 1.25rem;
+      }
+  
+      #solitaire-widget .tableau-area {
+        gap: 0.5rem;
+      }
+    }
+  
+    /* Адаптивность для маленьких экранов */
+    @media (max-width: 480px) {
+      #solitaire-widget .card {
+        width: 45px;
+        height: 65px;
+        font-size: 0.9rem;
+        padding: 2px;
+        border-radius: 0.25rem;
+      }
+  
+      #solitaire-widget .card-slot {
+        width: 45px;
+        height: 65px;
+        border-radius: 0.25rem;
+      }
+  
+      #solitaire-widget .tableau-pile {
+        width: 45px;
+        min-height: 65px;
+      }
+  
+      #solitaire-widget .tableau-pile .card.face-down+.card {
+        margin-top: 10px !important;
+      }
+  
+      #solitaire-widget .tableau-pile .card:not(.face-down)+.card {
+        margin-top: 18px !important;
+      }
+  
+      #solitaire-widget .tableau-pile.compressed .card:not(.face-down)+.card {
+        margin-top: 14px !important;
+      }
+  
+      #solitaire-widget .tableau-pile.very-compressed .card:not(.face-down)+.card {
+        margin-top: 10px !important;
+      }
+  
+      #solitaire-widget .game-header {
+        padding: 1rem;
+      }
+  
+      #solitaire-widget .game-title {
+        font-size: 1.25rem;
+      }
+  
+      #solitaire-widget .game-subtitle {
+        font-size: 0.75rem;
+      }
+  
+      #solitaire-widget .game-content {
+        padding: 0.5rem;
+        min-height: 400px;
+      }
+  
+      #solitaire-widget .stats-container {
+        gap: 0.25rem;
+        padding: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+  
+      #solitaire-widget .stat-card {
+        padding: 0.375rem 0.5rem;
+        gap: 0.25rem;
+      }
+  
+      #solitaire-widget .stat-label {
+        font-size: 0.625rem;
+      }
+  
+      #solitaire-widget .stat-value {
+        font-size: 0.875rem;
+      }
+  
+      #solitaire-widget .top-area {
+        gap: 0.25rem;
+      }
+  
+      #solitaire-widget .stock-waste {
+        gap: 0.25rem;
+      }
+  
+      #solitaire-widget .foundations {
+        gap: 0.25rem;
+      }
+  
+      #solitaire-widget .tableau-area {
+        gap: 0.125rem;
+        min-height: 250px;
+      }
+  
+      #solitaire-widget .controls {
+        margin-top: 0.75rem;
+      }
+  
+      #solitaire-widget .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.625rem;
+      }
+  
+      #solitaire-widget .rules-container {
+        padding: 1rem;
+      }
+  
+      #solitaire-widget .rule-item {
+        padding: 0.5rem;
+        gap: 0.5rem;
+      }
+  
+      #solitaire-widget .rule-icon {
+        font-size: 1rem;
+        width: 1.25rem;
+      }
+  
+      #solitaire-widget .rule-text {
+        font-size: 0.75rem;
+      }
+  
+      #solitaire-widget .start-button {
+        padding: 0.75rem 2rem;
+        font-size: 0.875rem;
+      }
+    }
+  
+    /* Ландшафтная ориентация на мобильных */
+    @media (max-height: 500px) and (orientation: landscape) {
+      #solitaire-widget .game-header {
+        padding: 0.5rem;
+      }
+  
+      #solitaire-widget .game-title {
+        font-size: 1rem;
+        margin-bottom: 0;
+      }
+  
+      #solitaire-widget .game-subtitle {
+        display: none;
+      }
+  
+      #solitaire-widget .stats-container {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        margin: 0;
+        padding: 0.25rem;
+        gap: 0.25rem;
+      }
+  
+      #solitaire-widget .stat-card {
+        padding: 0.25rem 0.5rem;
+      }
+  
+      #solitaire-widget .game-content {
+        padding-top: 3rem;
+      }
+  
+      #solitaire-widget .card {
+        width: 40px;
+        height: 55px;
+        font-size: 0.8rem;
+      }
+  
+      #solitaire-widget .card-slot {
+        width: 40px;
+        height: 55px;
+      }
+  
+      #solitaire-widget .tableau-pile {
+        width: 40px;
+        min-height: 55px;
+      }
+  
+      #solitaire-widget .tableau-pile .card:not(:first-child) {
+        margin-top: 12px;
+      }
+    }
+  
+    /* Предотвращение зума на iOS */
+    @media (max-width: 768px) {
+  
+      #solitaire-widget input,
+      #solitaire-widget select,
+      #solitaire-widget textarea,
+      #solitaire-widget button {
+        font-size: 16px !important;
+      }
+    }
+  
+    /* === Light/Blue skin overrides to match mortgage === */
+    .solitairе-container,
+    /* опечатки не страшны, ниже дублируем точный селектор */
+    .solitaire-container {
+      background: #ffffff;
+      color: #1f2937;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    }
+  
+    /* Заголовок */
+    #solitaire-widget .game-header {
+      background: linear-gradient(135deg, #2563eb, #4f8dff);
+      color: #ffffff;
+      padding: 1.5rem;
+    }
+  
+    /* Основная зона */
+    #solitaire-widget .game-content {
+      background: #ffffff;
+    }
+  
+    /* Карты (рубашка) — синий градиент */
+    #solitaire-widget .card.face-down {
+      background: linear-gradient(135deg, #2563eb, #4f8dff);
+      border: none;
+    }
+  
+    #solitaire-widget .card {
+      border: 1.5px solid #e2e8f0;
+    }
+  
+    /* Слоты под карты — светло-синие */
+    #solitaire-widget .card-slot {
+      background: rgba(37, 99, 235, 0.06);
+      border: 1.5px dashed rgba(37, 99, 235, 0.30);
+    }
+  
+    #solitaire-widget .card-slot.foundation {
+      background: rgba(37, 99, 235, 0.08);
+      border-color: rgba(37, 99, 235, 0.35);
+    }
+  
+    #solitaire-widget .card-slot.can-drop {
+      background: rgba(37, 99, 235, 0.20);
+      border-color: #2563eb;
+      box-shadow: 0 0 15px rgba(37, 99, 235, 0.30);
+    }
+  
+    /* Кнопки — как в mortgage: primary-синий, secondary — белая с синей рамкой */
+    #solitaire-widget .btn {
+      text-transform: none;
+      letter-spacing: 0;
+      border-radius: 10px;
+    }
+  
+    #solitaire-widget .btn:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+  
+    #solitaire-widget .btn-primary,
+    #solitaire-widget .start-button {
+      background: linear-gradient(135deg, #2563eb, #4f8dff);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.20);
+    }
+  
+    #solitaire-widget .btn-primary:hover,
+    #solitaire-widget .start-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.24);
+    }
+  
+    #solitaire-widget .btn-secondary {
+      background: #eef2ff;
+      color: #1f2937;
+      border: 1px solid #2563eb;
+    }
+  
+    #solitaire-widget .btn-secondary:hover {
+      background: #dbeafe;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
+    }
+  
+    /* Статистика и таблица рекордов — белые карточки с синими акцентами */
+    #solitaire-widget .stats-container {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+  
+    #solitaire-widget .stat-card {
+      background: linear-gradient(135deg, #ffffff, #f8fafc);
+      border: 1px solid #e2e8f0;
+    }
+  
+    #solitaire-widget .stat-value.moves,
+    #solitaire-widget .stat-value.timer {
+      color: #2563eb;
+    }
+  
+    #solitaire-widget .leaderboard-section {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+  
+    #solitaire-widget .leaderboard-name {
+      color: #1f2937;
+    }
+  
+    #solitaire-widget .leaderboard-name:hover {
+      color: #2563eb;
+    }
+  
+    #solitaire-widget .leaderboard-time {
+      color: #2563eb;
+    }
+  
+    /* Тексты в правилах/заголовках для контраста на белом */
+    #solitaire-widget .rules-container {
+      background: #ffffff;
+    }
+  
+    #solitaire-widget .rules-title {
+      color: #1f2937;
+    }
+  
+    #solitaire-widget .rule-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+  
+    #solitaire-widget .rule-text {
+      color: #4b5563;
+    }
+  
+    /* Окна и модалки — белые с синей рамкой */
+    #solitaire-widget .modal-content,
+    #solitaire-widget .win-message {
+      background: #ffffff;
+      color: #1f2937;
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.15);
+    }
+  
+    #solitaire-widget .win-message h2 {
+      color: #2563eb;
+    }
+  
+    /* Стили для расширенной таблицы лидеров */
+    #solitaire-widget .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+  
+    #solitaire-widget .modal-head .title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+  
+    #solitaire-widget .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.75rem;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+  
+    #solitaire-widget .modal-close:hover {
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+  
+    #solitaire-widget .modal-body {
+      padding: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+  
+    #solitaire-widget .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+  
+    #solitaire-widget .leaderboard-table thead {
+      background: #f9fafb;
+      border-bottom: 2px solid #e2e8f0;
+    }
+  
+    #solitaire-widget .leaderboard-table th {
+      padding: 0.75rem 0.5rem;
+      text-align: left;
+      font-weight: 600;
+      color: #6b7280;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  
+    #solitaire-widget .leaderboard-table td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+  
+    #solitaire-widget .leaderboard-table tbody tr:hover {
+      background: #f9fafb;
+    }
+  
+    #solitaire-widget .leaderboard-table tbody tr.current-user {
+      background: #fef3c7;
+    }
+  
+    #solitaire-widget .leaderboard-table tbody tr.current-user:hover {
+      background: #fde68a;
+    }
+  
+    #solitaire-widget .table-rank {
+      width: 60px;
+      text-align: center;
+      font-weight: 600;
+      color: #f59e0b;
+    }
+  
+    #solitaire-widget .table-score {
+      width: 80px;
+      text-align: center;
+      font-weight: 600;
+      color: #2563eb;
+    }
+  
+    #solitaire-widget .table-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e2e8f0;
+    }
+  
+    #solitaire-widget .table-name {
+      font-weight: 600;
+      color: #1f2937;
+    }
+  
+    #solitaire-widget .table-name:hover {
+      color: #2563eb;
+    }
+  
+    #solitaire-widget .table-meta {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+  
+    #solitaire-widget .table-player {
+      min-width: 180px;
+    }
+  
+    #solitaire-widget .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  
+    #solitaire-widget .pagination button {
+      padding: 0.5rem 0.75rem;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.875rem;
+      color: #1f2937;
+    }
+  
+    #solitaire-widget .pagination button:hover:not(:disabled) {
+      background: #f9fafb;
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+  
+    #solitaire-widget .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  
+    #solitaire-widget .leader-items {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  
+    /* Mobile styles for leaderboard modal */
+    @media (max-width: 768px) {
+      #solitaire-widget .modal-content {
+        width: calc(100% - 1rem);
+        padding: 1rem;
+        max-width: none;
+      }
+  
+      #solitaire-widget .leader-items {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+  
+      #solitaire-widget .leaderboard-table {
+        min-width: 100%;
+        font-size: 0.75rem;
+      }
+  
+      #solitaire-widget .leaderboard-table th,
+      #solitaire-widget .leaderboard-table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.7rem;
+      }
+  
+      #solitaire-widget .table-rank {
+        width: 40px;
+      }
+  
+      #solitaire-widget .table-score {
+        width: 60px;
+      }
+  
+      #solitaire-widget .table-player {
+        min-width: 120px;
+      }
+  
+      #solitaire-widget .table-avatar {
+        width: 24px;
+        height: 24px;
+      }
+  
+      #solitaire-widget .modal-head .title {
+        font-size: 1rem;
+      }
+  
+      #solitaire-widget .modal-body {
+        padding: 0;
+      }
+    }
+  
+    @media (max-width: 480px) {
+      #solitaire-widget .modal-content {
+        width: calc(100% - 0.5rem);
+        padding: 0.75rem;
+      }
+  
+      #solitaire-widget .leaderboard-table {
+        font-size: 0.65rem;
+      }
+  
+      #solitaire-widget .leaderboard-table th,
+      #solitaire-widget .leaderboard-table td {
+        padding: 0.4rem 0.2rem;
+        font-size: 0.65rem;
+      }
+  
+      #solitaire-widget .table-rank {
+        width: 35px;
+      }
+  
+      #solitaire-widget .table-score {
+        width: 50px;
+      }
+  
+      #solitaire-widget .table-player {
+        min-width: 100px;
+      }
+    }
+  
+    #solitaire-widget .solitaire-leaderboard-launch {
+      position: static;
+      top: auto;
+      right: auto;
+    }
+  
+    #solitaire-widget .solitaire-leaderboard-launch-desktop {
+      align-self: flex-end;
+      margin-top: 16px;
+    }
+  
+    #solitaire-widget .solitaire-leaderboard-launch-mobile {
+      display: none;
+      position: absolute;
+      top: 24px;
+      right: 24px;
+    }
+  
+    @media (max-width: 720px) {
+      #solitaire-widget .solitaire-leaderboard-launch-mobile {
+        display: inline-flex;
+        margin: 0 0 12px auto;
+        padding: 6px 11px;
+        font-size: 0.76rem;
+        gap: 0.26rem;
+        box-shadow: none;
+        transform: none;
+      }
+  
+      #solitaire-widget .solitaire-leaderboard-launch-desktop {
+        display: none;
+      }
+    }
+  
+    @media (max-width: 480px) {
+      #solitaire-widget .solitaire-leaderboard-launch-mobile {
+        padding: 5px 9px;
+        font-size: 0.68rem;
+        gap: 0.22rem;
+        margin: 36px 0 10px auto;
+        box-shadow: none;
+      }
+    }
+
+    /* Поверх окна проигрыша — модалка расшара */
+    .game-share-modal-overlay {
+      z-index: 2600 !important;
+    }
+
+    /* Поверх окна проигрыша — модалка лидерборда */
+    [data-lb-overlay] {
+      z-index: 2610 !important;
+    }
+    [data-lb-dialog] {
+      z-index: 2611 !important;
+    }
+  </style>
+  
+  <!-- HTML КОНТЕЙНЕР -->
+  
+  <div id="solitaire-widget" class="solitaire-container" tabindex="-1">
+    <div class="game-header">
+      <h1 class="game-title">Косынка</h1>
+      <p class="game-subtitle">Классический пасьянс</p>
+    </div>
+  
+    <div class="game-content">
+      <div class="stats-container">
+        <div class="stat-card">
+          <span class="stat-label">Ходы:</span>
+          <span id="moves-count" class="stat-value moves">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Время:</span>
+          <span id="timer-display" class="stat-value timer">00:00</span>
+        </div>
+      </div>
+  
+      <div class="game-board">
+        <div class="top-area">
+          <div class="stock-waste">
+            <div id="stock" class="card-slot stock-pile"></div>
+            <div id="waste" class="card-slot"></div>
+          </div>
+  
+          <div class="foundations">
+            <div id="foundation-0" class="card-slot foundation" data-foundation="0"></div>
+            <div id="foundation-1" class="card-slot foundation" data-foundation="1"></div>
+            <div id="foundation-2" class="card-slot foundation" data-foundation="2"></div>
+            <div id="foundation-3" class="card-slot foundation" data-foundation="3"></div>
+          </div>
+        </div>
+  
+        <div id="tableau" class="tableau-area">
+          <div id="tableau-0" class="tableau-pile" data-tableau="0"></div>
+          <div id="tableau-1" class="tableau-pile" data-tableau="1"></div>
+          <div id="tableau-2" class="tableau-pile" data-tableau="2"></div>
+          <div id="tableau-3" class="tableau-pile" data-tableau="3"></div>
+          <div id="tableau-4" class="tableau-pile" data-tableau="4"></div>
+          <div id="tableau-5" class="tableau-pile" data-tableau="5"></div>
+          <div id="tableau-6" class="tableau-pile" data-tableau="6"></div>
+        </div>
+      </div>
+  
+      <div class="controls">
+        <button id="new-game-btn" class="btn btn-primary">Новая игра</button>
+        <button id="undo-btn" class="btn btn-secondary">Отменить</button>
+        <button id="check-deadlock-btn" class="btn btn-secondary">Анализ</button>
+      </div>
+  
+      <div id="win-message" class="win-message hidden">
+        <h2>🎉 Победа!</h2>
+        <p>Поздравляем! Вы собрали пасьянс!</p>
+        <div class="win-stats">
+          <div class="win-stat-row">
+            <span class="win-stat-label">Время:</span>
+            <span id="win-time" class="win-stat-value">00:00</span>
+          </div>
+          <div class="win-stat-row">
+            <span class="win-stat-label">Ходы:</span>
+            <span id="win-moves" class="win-stat-value">0</span>
+          </div>
+        </div>
+        <button id="play-again-btn" class="btn btn-primary">Играть снова</button>
+      </div>
+  
+      <div id="start-screen" class="start-screen hidden">
+        <div class="start-content">
+          <div class="rules-container">
+            <h3 class="rules-title">Правила игры</h3>
+            <div class="rules-grid">
+              <div class="rule-item">
+                <span class="rule-icon">🎯</span>
+                <span class="rule-text">Соберите все 52 карты в 4 фундамента по мастям от туза до короля</span>
+              </div>
+              <div class="rule-item">
+                <span class="rule-icon">♠♥</span>
+                <span class="rule-text">В таблице карты кладутся по убыванию с чередованием цветов</span>
+              </div>
+              <div class="rule-item">
+                <span class="rule-icon">👑</span>
+                <span class="rule-text">Только король может занять пустой столбец в таблице</span>
+              </div>
+              <div class="rule-item">
+                <span class="rule-icon">📱</span>
+                <span class="rule-text">На мобильных: тапните для выбора, тапните еще раз для перемещения</span>
+              </div>
+            </div>
+          </div>
+  
+          <button id="start-game-btn" class="start-button">Начать игру</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- СКРИПТ -->
+  <script>
+  (() => {
+  // Wait for DOM to be ready before initializing the game
+  function setupGame() {
+    // Function to initialize the game
+    function initializeGame() {
+      // Start the game in an IIFE
+      (function () {
+      // Константы
+      const SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
+      const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+      const SUIT_SYMBOLS = {
+        hearts: '♥',
+        diamonds: '♦',
+        clubs: '♣',
+        spades: '♠'
+      };
+  
+      // Определение типа устройства/указателей
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const hasFinePointer = typeof window.matchMedia === 'function' && window.matchMedia('(any-pointer: fine)').matches;
+  
+      // Глобальное состояние игры
+      let gameState = {
+        deck: [],
+        stock: [],
+        waste: [],
+        foundations: [[], [], [], []],
+        tableau: [[], [], [], [], [], [], []],
+        moves: 0,
+        score: 0,
+        timer: 0,
+        timerInterval: null,
+        selectedCard: null,
+        selectedLocation: null,
+        draggedCards: [],
+        history: [],
+        isGameWon: false,
+        touchStartX: 0,
+        touchStartY: 0,
+        touchCard: null,
+        longPressTimer: null,
+        startTime: null, // Для точного подсчета времени в миллисекундах
+        elapsedTime: 0  // Время в миллисекундах
+      };
+  
+      let lastSubmittedScore = 0;
+  
+      // Получение элементов DOM
+      const widget = document.getElementById('solitaire-widget');
+      const stockEl = widget.querySelector('#stock');
+      const wasteEl = widget.querySelector('#waste');
+      const movesEl = widget.querySelector('#moves-count');
+      const timerEl = widget.querySelector('#timer-display');
+      const newGameBtn = widget.querySelector('#new-game-btn');
+      const undoBtn = widget.querySelector('#undo-btn');
+      const checkDeadlockBtn = widget.querySelector('#check-deadlock-btn');
+      const winMessage = widget.querySelector('#win-message');
+      const playAgainBtn = widget.querySelector('#play-again-btn');
+      const startScreen = widget.querySelector('#start-screen');
+      const startGameBtn = widget.querySelector('#start-game-btn');
+      const winTimeEl = widget.querySelector('#win-time');
+      const winMovesEl = widget.querySelector('#win-moves');
+
+      const focusWidget = () => {
+        if (!widget) return;
+        try {
+          widget.focus({ preventScroll: true });
+        } catch {
+          widget.focus();
+        }
+      };
+
+      if (widget) {
+        widget.addEventListener('pointerdown', () => focusWidget(), true);
+      }
+  
+      // Класс карты
+      class Card {
+        constructor(suit, rank) {
+          this.suit = suit;
+          this.rank = rank;
+          this.faceUp = false;
+          this.element = this.createElement();
+        }
+  
+        createElement() {
+          const card = document.createElement('div');
+          card.className = `card ${this.suit}`;
+          card.dataset.suit = this.suit;
+          card.dataset.rank = this.rank;
+  
+          // Разрешаем drag&drop, когда доступен точный указатель (мышь/трекпад)
+          if (hasFinePointer) {
+            card.draggable = true;
+          }
+  
+          this.updateElement(card);
+          return card;
+        }
+  
+        updateElement(el = this.element) {
+          if (this.faceUp) {
+            el.classList.remove('face-down');
+            el.textContent = this.rank + SUIT_SYMBOLS[this.suit];
+            el.style.color = (this.suit === 'hearts' || this.suit === 'diamonds') ? '#dc2626' : '#1f2937';
+          } else {
+            el.classList.add('face-down');
+            el.textContent = '';
+          }
+        }
+  
+        flip() {
+          this.faceUp = !this.faceUp;
+          this.element.classList.add('flipping');
+          setTimeout(() => {
+            this.updateElement();
+            this.element.classList.remove('flipping');
+          }, 200);
+        }
+  
+        getValue() {
+          if (this.rank === 'A') return 1;
+          if (this.rank === 'J') return 11;
+          if (this.rank === 'Q') return 12;
+          if (this.rank === 'K') return 13;
+          return parseInt(this.rank);
+        }
+  
+        isRed() {
+          return this.suit === 'hearts' || this.suit === 'diamonds';
+        }
+  
+        canPlaceOn(otherCard) {
+          if (!otherCard) return this.rank === 'K';
+          return this.isRed() !== otherCard.isRed() &&
+            this.getValue() === otherCard.getValue() - 1;
+        }
+      }
+  
+      // Создание колоды
+      function createDeck() {
+        const deck = [];
+        const usedCards = new Set();
+  
+        for (const suit of SUITS) {
+          for (const rank of RANKS) {
+            const cardKey = `${suit}-${rank}`;
+            if (!usedCards.has(cardKey)) {
+              usedCards.add(cardKey);
+              deck.push(new Card(suit, rank));
+            }
+          }
+        }
+  
+        return shuffle(deck);
+      }
+  
+      // Перемешивание колоды
+      function shuffle(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+  
+      // Форматирование времени из миллисекунд
+      function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const milliseconds = ms % 1000;
+        return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+      }
+  
+      // Форматирование времени для отображения (M:SS)
+      function formatDisplayTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+
+      // Инициализация API
+      async function initAPI() {
+        return Promise.resolve();
+      }
+  
+      // Инициализация игры
+      function initGame() {
+        if (gameState.timerInterval) {
+          clearInterval(gameState.timerInterval);
+          gameState.timerInterval = null;
+        }
+  
+        gameState = {
+          deck: createDeck(),
+          stock: [],
+          waste: [],
+          foundations: [[], [], [], []],
+          tableau: [[], [], [], [], [], [], []],
+          moves: 0,
+          score: 0,
+          timer: 0,
+          timerInterval: null,
+          selectedCard: null,
+          selectedLocation: null,
+          draggedCards: [],
+          history: [],
+          isGameWon: false,
+          touchStartX: 0,
+          touchStartY: 0,
+          touchCard: null,
+          longPressTimer: null,
+          startTime: null,
+          elapsedTime: 0
+        };
+  
+        clearBoard();
+        dealCards();
+        updateStats();
+        updateTimer();
+        startTimer();
+  
+        winMessage.classList.add('hidden');
+        startScreen.classList.add('hidden');
+        focusWidget();
+      }
+  
+      // Очистка игровой доски
+      function clearBoard() {
+        stockEl.innerHTML = '';
+        wasteEl.innerHTML = '';
+  
+        for (let i = 0; i < 4; i++) {
+          widget.querySelector(`#foundation-${i}`).innerHTML = '';
+        }
+  
+        for (let i = 0; i < 7; i++) {
+          widget.querySelector(`#tableau-${i}`).innerHTML = '';
+        }
+  
+        if (gameState.timerInterval) {
+          clearInterval(gameState.timerInterval);
+          gameState.timerInterval = null;
+        }
+      }
+  
+      // Раздача карт
+      function dealCards() {
+        let deckIndex = 0;
+  
+        for (let i = 0; i < 7; i++) {
+          for (let j = 0; j <= i; j++) {
+            const card = gameState.deck[deckIndex++];
+            gameState.tableau[i].push(card);
+  
+            if (j === i) {
+              card.faceUp = true;
+              card.updateElement();
+            }
+          }
+        }
+  
+        while (deckIndex < gameState.deck.length) {
+          gameState.stock.push(gameState.deck[deckIndex++]);
+        }
+  
+        renderBoard();
+      }
+  
+      // Отрисовка игровой доски
+      function renderBoard() {
+        renderStock();
+        renderWaste();
+  
+        for (let i = 0; i < 4; i++) {
+          renderFoundation(i);
+        }
+  
+        for (let i = 0; i < 7; i++) {
+          renderTableau(i);
+        }
+  
+        addEventListeners();
+      }
+  
+      // Отрисовка колоды
+      function renderStock() {
+        stockEl.innerHTML = '';
+        if (gameState.stock.length > 0) {
+          const topCard = gameState.stock[gameState.stock.length - 1];
+          stockEl.appendChild(topCard.element);
+          positionCard(topCard.element, 0, 0);
+  
+          if (gameState.stock.length > 1) {
+            const shadow1 = document.createElement('div');
+            shadow1.className = 'card face-down';
+            shadow1.style.position = 'absolute';
+            shadow1.style.left = '2px';
+            shadow1.style.top = '2px';
+            shadow1.style.zIndex = '-1';
+            stockEl.appendChild(shadow1);
+          }
+  
+          if (gameState.stock.length > 2) {
+            const shadow2 = document.createElement('div');
+            shadow2.className = 'card face-down';
+            shadow2.style.position = 'absolute';
+            shadow2.style.left = '4px';
+            shadow2.style.top = '4px';
+            shadow2.style.zIndex = '-2';
+            stockEl.appendChild(shadow2);
+          }
+        }
+      }
+  
+      // Отрисовка сброса
+      function renderWaste() {
+        wasteEl.innerHTML = '';
+        if (gameState.waste.length > 0) {
+          const topCard = gameState.waste[gameState.waste.length - 1];
+          wasteEl.appendChild(topCard.element);
+          positionCard(topCard.element, 0, 0);
+        }
+      }
+  
+      // Отрисовка фундамента
+      function renderFoundation(index) {
+        const foundationEl = widget.querySelector(`#foundation-${index}`);
+        foundationEl.innerHTML = '';
+  
+        const cards = gameState.foundations[index];
+        if (cards.length > 0) {
+          const topCard = cards[cards.length - 1];
+          foundationEl.appendChild(topCard.element);
+          positionCard(topCard.element, 0, 0);
+        }
+      }
+  
+      // Отрисовка таблицы
+      function renderTableau(index) {
+        const tableauEl = widget.querySelector(`#tableau-${index}`);
+        tableauEl.innerHTML = '';
+  
+        const cards = gameState.tableau[index];
+  
+        tableauEl.classList.remove('compressed', 'very-compressed');
+  
+        // Определяем класс сжатия
+        if (cards.length > 12) {
+          tableauEl.classList.add('very-compressed');
+        } else if (cards.length > 9) {
+          tableauEl.classList.add('compressed');
+        }
+  
+        cards.forEach((card, i) => {
+          tableauEl.appendChild(card.element);
+  
+          let offset = 0;
+  
+          if (i === 0) {
+            offset = 0; // Первая карта всегда на базовой позиции
+          } else {
+            const prevCard = cards[i - 1];
+  
+            if (hasTouch || window.innerWidth <= 480) {
+              // Мобильные устройства
+              if (prevCard.faceUp && card.faceUp) {
+                offset = 18; // Между открытыми картами
+              } else if (!prevCard.faceUp) {
+                offset = 10; // После закрытой карты
+              } else {
+                offset = 18; // По умолчанию
+              }
+  
+              // Дополнительное сжатие при большом количестве карт
+              if (cards.length > 12 && card.faceUp) {
+                offset = Math.max(offset - 3, 12);
+              }
+            } else if (window.innerWidth <= 768) {
+              // Планшеты
+              if (prevCard.faceUp && card.faceUp) {
+                offset = 22;
+              } else if (!prevCard.faceUp) {
+                offset = 12;
+              } else {
+                offset = 22;
+              }
+            } else {
+              // Десктоп - уменьшенные отступы
+              if (prevCard.faceUp && card.faceUp) {
+                offset = 22; // Между открытыми картами (было 30)
+                if (cards.length > 12) {
+                  offset = 18; // При большом количестве карт
+                } else if (cards.length > 9) {
+                  offset = 20; // При среднем количестве
+                }
+              } else if (!prevCard.faceUp) {
+                offset = 12; // После закрытой карты (было 18)
+              } else {
+                offset = 22; // По умолчанию
+              }
+            }
+          }
+  
+          // Вычисляем абсолютную позицию на основе всех предыдущих карт
+          let totalOffset = 0;
+          for (let j = 1; j <= i; j++) {
+            const prev = cards[j - 1];
+            if (hasTouch || window.innerWidth <= 480) {
+              totalOffset += prev.faceUp ? 18 : 10;
+              if (cards.length > 12) {
+                totalOffset -= 2;
+              }
+            } else if (window.innerWidth <= 768) {
+              totalOffset += prev.faceUp ? 22 : 12;
+            } else {
+              // Десктоп
+              if (prev.faceUp) {
+                if (cards.length > 12) {
+                  totalOffset += 18;
+                } else if (cards.length > 9) {
+                  totalOffset += 20;
+                } else {
+                  totalOffset += 22;
+                }
+              } else {
+                totalOffset += 12;
+              }
+            }
+          }
+  
+          positionCard(card.element, 0, totalOffset);
+          card.element.style.zIndex = i;
+        });
+      }
+  
+      // Позиционирование карты
+      function positionCard(cardEl, x, y) {
+        cardEl.style.left = x + 'px';
+        cardEl.style.top = y + 'px';
+      }
+  
+      // Добавление обработчиков событий
+      let stockListenersAttached = false;
+      let lastTouchTime = 0;
+      function addEventListeners() {
+        // Клик/тап по колоде
+        if (!stockListenersAttached) {
+          if (hasTouch) {
+            stockEl.addEventListener('touchstart', handleStockClick);
+          }
+          if (hasFinePointer) {
+            stockEl.addEventListener('click', handleStockClick);
+          }
+          stockListenersAttached = true;
+        }
+  
+        const cards = widget.querySelectorAll('.card');
+  
+        if (hasTouch) {
+          // Touch события для мобильных
+          cards.forEach(card => {
+            card.addEventListener('touchstart', handleTouchStart, { passive: false });
+            card.addEventListener('touchmove', handleTouchMove, { passive: false });
+            card.addEventListener('touchend', handleTouchEnd);
+          });
+  
+          // Добавляем обработчики для пустых слотов
+          const slots = widget.querySelectorAll('.card-slot, .tableau-pile');
+          slots.forEach(slot => {
+            slot.addEventListener('touchstart', handleSlotTouch);
+          });
+        }
+
+        if (hasFinePointer) {
+          // Drag and Drop для десктопа/мыши
+          cards.forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+            card.addEventListener('dragover', handleDragOver);
+            card.addEventListener('drop', handleDrop);
+            card.addEventListener('dragleave', handleDragLeave);
+            card.addEventListener('dblclick', handleDoubleClick);
+          });
+
+          const dropZones = widget.querySelectorAll('.card-slot, .tableau-pile');
+          dropZones.forEach(zone => {
+            zone.addEventListener('dragover', handleDragOver);
+            zone.addEventListener('drop', handleDrop);
+            zone.addEventListener('dragleave', handleDragLeave);
+          });
+        }
+      }
+  
+      // Touch обработчики для мобильных
+      function handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const card = e.currentTarget;
+  
+        if (card.classList.contains('face-down')) return;
+  
+        gameState.touchStartX = touch.clientX;
+        gameState.touchStartY = touch.clientY;
+        gameState.touchCard = card;
+  
+        // Добавляем визуальный эффект
+        card.classList.add('touched');
+  
+        // Долгое нажатие для автоматического перемещения
+        gameState.longPressTimer = setTimeout(() => {
+          handleAutoMove(card);
+        }, 500);
+      }
+  
+      function handleTouchMove(e) {
+        e.preventDefault();
+  
+        // Отменяем долгое нажатие при движении
+        if (gameState.longPressTimer) {
+          clearTimeout(gameState.longPressTimer);
+          gameState.longPressTimer = null;
+        }
+  
+        if (!gameState.touchCard) return;
+  
+        const touch = e.touches[0];
+        const deltaX = Math.abs(touch.clientX - gameState.touchStartX);
+        const deltaY = Math.abs(touch.clientY - gameState.touchStartY);
+  
+        // Если палец сдвинулся значительно, отменяем выделение
+        if (deltaX > 10 || deltaY > 10) {
+          gameState.touchCard.classList.remove('touched');
+          gameState.touchCard = null;
+        }
+      }
+  
+      function handleTouchEnd(e) {
+        e.preventDefault();
+  
+        // Отменяем таймер долгого нажатия
+        if (gameState.longPressTimer) {
+          clearTimeout(gameState.longPressTimer);
+          gameState.longPressTimer = null;
+        }
+  
+        const card = e.currentTarget;
+        card.classList.remove('touched');
+  
+        if (!gameState.touchCard) return;
+  
+        // Обработка тапа
+        handleCardTap(card);
+        gameState.touchCard = null;
+      }
+  
+      function handleSlotTouch(e) {
+        if (!gameState.selectedCard) return;
+  
+        const slot = e.currentTarget;
+        const dropLocation = getDropLocation(slot);
+  
+        if (dropLocation && canDropSelection(dropLocation)) {
+          const from = gameState.selectedLocation;
+          moveCards(from, dropLocation);
+          clearSelection();
+        }
+      }
+  
+      function handleCardTap(card) {
+        const location = findCardLocation(card);
+        if (!location) return;
+  
+        // Если карта уже выбрана, снимаем выделение
+        if (gameState.selectedCard && gameState.selectedCard.element === card) {
+          clearSelection();
+          return;
+        }
+  
+        // Если есть выбранная карта, пытаемся переместить
+        if (gameState.selectedCard) {
+          const dropLocation = getDropLocation(card.parentElement);
+  
+          if (dropLocation && canDropSelection(dropLocation)) {
+            const from = gameState.selectedLocation;
+            moveCards(from, dropLocation);
+            clearSelection();
+          } else {
+            // Выбираем новую карту
+            selectCard(card, location);
+          }
+        } else {
+          // Выбираем карту
+          selectCard(card, location);
+        }
+      }
+  
+      function selectCard(cardEl, location) {
+        clearSelection();
+  
+        const cardObj = findCardObject(cardEl);
+        if (!cardObj || !cardObj.faceUp) return;
+  
+        gameState.selectedCard = cardObj;
+        gameState.selectedLocation = location;
+  
+        // Подсвечиваем выбранную карту и все карты под ней
+        if (location.type === 'tableau') {
+          const tableau = gameState.tableau[location.index];
+          for (let i = location.cardIndex; i < tableau.length; i++) {
+            tableau[i].element.classList.add('selected');
+          }
+        } else {
+          cardObj.element.classList.add('selected');
+        }
+  
+        // Подсвечиваем возможные места для сброса
+        highlightValidDropZones();
+      }
+  
+      function clearSelection() {
+        const selected = widget.querySelectorAll('.selected');
+        selected.forEach(el => el.classList.remove('selected'));
+  
+        const highlighted = widget.querySelectorAll('.can-drop');
+        highlighted.forEach(el => el.classList.remove('can-drop'));
+  
+        gameState.selectedCard = null;
+        gameState.selectedLocation = null;
+      }
+  
+      function highlightValidDropZones() {
+        if (!gameState.selectedCard) return;
+  
+        // Проверяем фундаменты
+        for (let i = 0; i < 4; i++) {
+          if (canPlaceOnFoundation(gameState.selectedCard, i)) {
+            widget.querySelector(`#foundation-${i}`).classList.add('can-drop');
+          }
+        }
+  
+        // Проверяем таблицы
+        for (let i = 0; i < 7; i++) {
+          const tableau = gameState.tableau[i];
+          const tableauEl = widget.querySelector(`#tableau-${i}`);
+  
+          if (tableau.length === 0) {
+            if (gameState.selectedCard.rank === 'K') {
+              tableauEl.classList.add('can-drop');
+            }
+          } else {
+            const topCard = tableau[tableau.length - 1];
+            if (gameState.selectedCard.canPlaceOn(topCard)) {
+              topCard.element.classList.add('can-drop');
+            }
+          }
+        }
+      }
+  
+      function canDropSelection(dropLocation) {
+        if (!gameState.selectedCard) return false;
+  
+        if (dropLocation.type === 'foundation') {
+          // В фундамент можно только одну карту
+          if (gameState.selectedLocation.type === 'tableau') {
+            const tableau = gameState.tableau[gameState.selectedLocation.index];
+            if (gameState.selectedLocation.cardIndex < tableau.length - 1) {
+              return false;
+            }
+          }
+          return canPlaceOnFoundation(gameState.selectedCard, dropLocation.index);
+        }
+  
+        if (dropLocation.type === 'tableau') {
+          const tableau = gameState.tableau[dropLocation.index];
+          if (tableau.length === 0) {
+            return gameState.selectedCard.rank === 'K';
+          }
+          const topCard = tableau[tableau.length - 1];
+          return gameState.selectedCard.canPlaceOn(topCard);
+        }
+  
+        return false;
+      }
+  
+      function handleAutoMove(cardEl) {
+        const card = findCardObject(cardEl);
+        if (!card) return;
+  
+        const location = findCardLocation(cardEl);
+        if (!location) return;
+  
+        // Проверяем возможность перемещения в фундамент
+        for (let i = 0; i < 4; i++) {
+          if (canPlaceOnFoundation(card, i)) {
+            saveHistory();
+            moveCards(location, { type: 'foundation', index: i });
+  
+            // Вибрация на мобильных (если поддерживается)
+            if (navigator.vibrate) {
+              navigator.vibrate(50);
+            }
+            return;
+          }
+        }
+  
+        // Если не можем в фундамент, просто выбираем карту
+        selectCard(cardEl, location);
+      }
+  
+      // Обработка клика по колоде
+      function handleStockClick(e) {
+        if (e.type === 'touchstart') {
+          lastTouchTime = Date.now();
+          e.preventDefault();
+        }
+        if (e.type === 'click' && Date.now() - lastTouchTime < 400) {
+          return;
+        }
+  
+        if (gameState.stock.length === 0) {
+          if (gameState.waste.length > 0) {
+            saveHistory();
+  
+            const cardsToReturn = [...gameState.waste].reverse();
+            gameState.waste = [];
+  
+            cardsToReturn.forEach(card => {
+              card.faceUp = false;
+              card.updateElement();
+              gameState.stock.push(card);
+            });
+  
+            gameState.moves++;
+            updateStats();
+            renderBoard();
+          }
+        } else {
+          saveHistory();
+          const card = gameState.stock.pop();
+          card.faceUp = true;
+          card.updateElement();
+          gameState.waste.push(card);
+          gameState.moves++;
+          updateStats();
+          renderBoard();
+        }
+  
+        clearSelection();
+      }
+  
+      // Drag and Drop для десктопа
+      let draggedElement = null;
+      let draggedFrom = null;
+  
+      function handleDragStart(e) {
+        const card = e.target;
+        if (!card.classList.contains('card') || card.classList.contains('face-down')) {
+          e.preventDefault();
+          return;
+        }
+  
+        draggedElement = card;
+        draggedFrom = findCardLocation(card);
+  
+        if (!draggedFrom) {
+          e.preventDefault();
+          return;
+        }
+  
+        gameState.draggedCards = getDraggedCards(draggedFrom, card);
+  
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', card.innerHTML);
+  
+        setTimeout(() => {
+          gameState.draggedCards.forEach(c => {
+            c.element.classList.add('dragging');
+          });
+        }, 0);
+      }
+  
+      function handleDragEnd(e) {
+        if (gameState.draggedCards.length > 0) {
+          gameState.draggedCards.forEach(c => {
+            c.element.classList.remove('dragging');
+          });
+        }
+  
+        const dropZones = widget.querySelectorAll('.can-drop');
+        dropZones.forEach(zone => zone.classList.remove('can-drop'));
+  
+        draggedElement = null;
+        draggedFrom = null;
+        gameState.draggedCards = [];
+      }
+  
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+  
+        const dropZone = e.currentTarget;
+  
+        if (dropZone.classList.contains('card') &&
+          !dropZone.classList.contains('dragging')) {
+          if (canDrop(dropZone)) {
+            dropZone.classList.add('can-drop');
+          }
+        } else if (!dropZone.classList.contains('card')) {
+          if (canDrop(dropZone)) {
+            dropZone.classList.add('can-drop');
+          }
+        }
+      }
+  
+      function handleDragLeave(e) {
+        e.currentTarget.classList.remove('can-drop');
+      }
+  
+      function handleDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('can-drop');
+  
+        if (!draggedElement || !draggedFrom) return;
+  
+        const dropZone = e.currentTarget;
+        if (!canDrop(dropZone)) return;
+  
+        const dropLocation = getDropLocation(dropZone);
+        if (!dropLocation) return;
+  
+        moveCards(draggedFrom, dropLocation);
+      }
+  
+      function handleDoubleClick(e) {
+        const card = e.target;
+        if (!card.classList.contains('card') || card.classList.contains('face-down')) return;
+  
+        const location = findCardLocation(card);
+        if (!location) return;
+  
+        const cardObj = findCardObject(card);
+        for (let i = 0; i < 4; i++) {
+          if (canPlaceOnFoundation(cardObj, i)) {
+            saveHistory();
+            moveCards(location, { type: 'foundation', index: i });
+            return;
+          }
+        }
+      }
+  
+      // Вспомогательные функции
+      function findCardLocation(cardEl) {
+        if (gameState.waste.length > 0 &&
+          gameState.waste[gameState.waste.length - 1].element === cardEl) {
+          return { type: 'waste' };
+        }
+  
+        for (let i = 0; i < 4; i++) {
+          const foundation = gameState.foundations[i];
+          if (foundation.length > 0 &&
+            foundation[foundation.length - 1].element === cardEl) {
+            return { type: 'foundation', index: i };
+          }
+        }
+  
+        for (let i = 0; i < 7; i++) {
+          const tableau = gameState.tableau[i];
+          for (let j = 0; j < tableau.length; j++) {
+            if (tableau[j].element === cardEl) {
+              return { type: 'tableau', index: i, cardIndex: j };
+            }
+          }
+        }
+  
+        return null;
+      }
+  
+      function findCardObject(cardEl) {
+        const suit = cardEl.dataset.suit;
+        const rank = cardEl.dataset.rank;
+  
+        const allCards = [
+          ...gameState.stock,
+          ...gameState.waste,
+          ...gameState.foundations.flat(),
+          ...gameState.tableau.flat()
+        ];
+  
+        return allCards.find(card =>
+          card.suit === suit && card.rank === rank
+        );
+      }
+  
+      function getDraggedCards(location, cardEl) {
+        if (location.type === 'waste') {
+          return [gameState.waste[gameState.waste.length - 1]];
+        }
+  
+        if (location.type === 'foundation') {
+          const foundation = gameState.foundations[location.index];
+          return [foundation[foundation.length - 1]];
+        }
+  
+        if (location.type === 'tableau') {
+          const tableau = gameState.tableau[location.index];
+          return tableau.slice(location.cardIndex);
+        }
+  
+        return [];
+      }
+  
+      function canDrop(dropZone) {
+        if (!draggedElement || gameState.draggedCards.length === 0) return false;
+  
+        const dropLocation = getDropLocation(dropZone);
+        if (!dropLocation) return false;
+  
+        const draggedCard = gameState.draggedCards[0];
+  
+        if (dropLocation.type === 'foundation') {
+          if (gameState.draggedCards.length !== 1) return false;
+          return canPlaceOnFoundation(draggedCard, dropLocation.index);
+        }
+  
+        if (dropLocation.type === 'tableau') {
+          const tableau = gameState.tableau[dropLocation.index];
+          if (tableau.length === 0) {
+            return draggedCard.rank === 'K';
+          }
+          const topCard = tableau[tableau.length - 1];
+          return draggedCard.canPlaceOn(topCard);
+        }
+  
+        return false;
+      }
+  
+      function getDropLocation(dropZone) {
+        if (dropZone.classList.contains('foundation')) {
+          const index = parseInt(dropZone.dataset.foundation);
+          return { type: 'foundation', index };
+        }
+  
+        if (dropZone.classList.contains('tableau-pile')) {
+          const index = parseInt(dropZone.dataset.tableau);
+          return { type: 'tableau', index };
+        }
+  
+        if (dropZone.classList.contains('card')) {
+          let parent = dropZone.parentElement;
+          while (parent && !parent.classList.contains('tableau-pile')) {
+            parent = parent.parentElement;
+          }
+  
+          if (parent && parent.dataset.tableau !== undefined) {
+            const index = parseInt(parent.dataset.tableau);
+            return { type: 'tableau', index };
+          }
+  
+          parent = dropZone.parentElement;
+          while (parent && !parent.classList.contains('foundation')) {
+            parent = parent.parentElement;
+          }
+  
+          if (parent && parent.dataset.foundation !== undefined) {
+            const index = parseInt(parent.dataset.foundation);
+            return { type: 'foundation', index };
+          }
+        }
+  
+        return null;
+      }
+  
+      function canPlaceOnFoundation(card, foundationIndex) {
+        const foundation = gameState.foundations[foundationIndex];
+  
+        if (foundation.length === 0) {
+          return card.rank === 'A';
+        }
+  
+        const topCard = foundation[foundation.length - 1];
+        return card.suit === topCard.suit &&
+          card.getValue() === topCard.getValue() + 1;
+      }
+  
+      function moveCards(from, to) {
+        saveHistory();
+  
+        let cards = [];
+  
+        if (from.type === 'waste') {
+          cards = [gameState.waste.pop()];
+        } else if (from.type === 'foundation') {
+          cards = [gameState.foundations[from.index].pop()];
+        } else if (from.type === 'tableau') {
+          cards = gameState.tableau[from.index].splice(from.cardIndex);
+        }
+  
+        if (to.type === 'foundation') {
+          gameState.foundations[to.index].push(...cards);
+          gameState.score += 10;
+        } else if (to.type === 'tableau') {
+          gameState.tableau[to.index].push(...cards);
+        }
+  
+        if (from.type === 'tableau') {
+          const tableau = gameState.tableau[from.index];
+          if (tableau.length > 0 && !tableau[tableau.length - 1].faceUp) {
+            tableau[tableau.length - 1].flip();
+            gameState.score += 5;
+          }
+        }
+  
+        gameState.moves++;
+        updateStats();
+        renderBoard();
+        checkWin();
+      }
+  
+      function saveHistory() {
+        const state = JSON.stringify({
+          stock: gameState.stock.map(serializeCard),
+          waste: gameState.waste.map(serializeCard),
+          foundations: gameState.foundations.map(f => f.map(serializeCard)),
+          tableau: gameState.tableau.map(t => t.map(serializeCard)),
+          moves: gameState.moves,
+          score: gameState.score
+        });
+  
+        gameState.history.push(state);
+        if (gameState.history.length > 50) {
+          gameState.history.shift();
+        }
+      }
+  
+      function serializeCard(card) {
+        return {
+          suit: card.suit,
+          rank: card.rank,
+          faceUp: card.faceUp
+        };
+      }
+  
+      function undo() {
+        if (gameState.history.length === 0) return;
+  
+        const state = JSON.parse(gameState.history.pop());
+  
+        gameState.stock = state.stock.map(c => {
+          const card = new Card(c.suit, c.rank);
+          card.faceUp = c.faceUp;
+          card.updateElement();
+          return card;
+        });
+  
+        gameState.waste = state.waste.map(c => {
+          const card = new Card(c.suit, c.rank);
+          card.faceUp = c.faceUp;
+          card.updateElement();
+          return card;
+        });
+  
+        gameState.foundations = state.foundations.map(f =>
+          f.map(c => {
+            const card = new Card(c.suit, c.rank);
+            card.faceUp = c.faceUp;
+            card.updateElement();
+            return card;
+          })
+        );
+  
+        gameState.tableau = state.tableau.map(t =>
+          t.map(c => {
+            const card = new Card(c.suit, c.rank);
+            card.faceUp = c.faceUp;
+            card.updateElement();
+            return card;
+          })
+        );
+  
+        gameState.moves = state.moves;
+        gameState.score = state.score;
+  
+        updateStats();
+        renderBoard();
+        clearSelection();
+      }
+  
+      async function checkWin() {
+        const totalCards = gameState.foundations.reduce((sum, f) => sum + f.length, 0);
+        if (totalCards === 52) {
+          gameState.isGameWon = true;
+          stopTimer();
+
+          // Вычисляем финальное время в миллисекундах
+          if (gameState.startTime) {
+            gameState.elapsedTime = Date.now() - gameState.startTime;
+          }
+
+          // Обновляем статистику в окне победы
+          winTimeEl.textContent = formatDisplayTime(gameState.timer);
+          winMovesEl.textContent = gameState.moves;
+
+          // Сохраняем для кнопки "Поделиться"
+          localStorage.setItem('time_id5_kosynka', gameState.timer); // Время в секундах
+
+          winMessage.classList.remove('hidden');
+
+          const allCards = widget.querySelectorAll('.card');
+          allCards.forEach((card, i) => {
+            setTimeout(() => {
+              card.classList.add('winning');
+            }, i * 50);
+          });
+
+          if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100, 50, 200]);
+          }
+
+          // Обновляем локальный рекорд ДО обновления карточки и модалки
+          const localBestBefore = parseInt(localStorage.getItem('solitaire_best_score') || '0', 10);
+          const localBest = Number.isFinite(localBestBefore) ? localBestBefore : 0;
+          if (gameState.score > localBest) {
+            localStorage.setItem('solitaire_best_score', String(gameState.score));
+          }
+
+          // Модальное окно победы убрано — показываем только локальный блок результата
+        }
+      }
+      
+      function checkDeadlock() {
+        const possibleMoves = [];
+        const moveDetails = [];
+  
+        // Проверяем карты из сброса
+        if (gameState.waste.length > 0) {
+          const card = gameState.waste[gameState.waste.length - 1];
+  
+          for (let i = 0; i < 4; i++) {
+            if (canPlaceOnFoundation(card, i)) {
+              possibleMoves.push({ from: 'waste', to: 'foundation' });
+              moveDetails.push(`${card.rank}${SUIT_SYMBOLS[card.suit]} → фундамент`);
+            }
+          }
+  
+          for (let i = 0; i < 7; i++) {
+            const tableau = gameState.tableau[i];
+            if (tableau.length === 0 && card.rank === 'K') {
+              possibleMoves.push({ from: 'waste', to: 'tableau' });
+              moveDetails.push(`${card.rank}${SUIT_SYMBOLS[card.suit]} → пустой столбец`);
+            } else if (tableau.length > 0 && card.canPlaceOn(tableau[tableau.length - 1])) {
+              possibleMoves.push({ from: 'waste', to: 'tableau' });
+              const target = tableau[tableau.length - 1];
+              moveDetails.push(`${card.rank}${SUIT_SYMBOLS[card.suit]} → ${target.rank}${SUIT_SYMBOLS[target.suit]}`);
+            }
+          }
+        }
+  
+        // Проверяем карты из таблицы
+        for (let i = 0; i < 7; i++) {
+          const tableau = gameState.tableau[i];
+          for (let j = 0; j < tableau.length; j++) {
+            const card = tableau[j];
+            if (!card.faceUp) continue;
+  
+            if (j === tableau.length - 1) {
+              for (let f = 0; f < 4; f++) {
+                if (canPlaceOnFoundation(card, f)) {
+                  possibleMoves.push({ from: 'tableau', to: 'foundation' });
+                  moveDetails.push(`${card.rank}${SUIT_SYMBOLS[card.suit]} → фундамент`);
+                }
+              }
+            }
+  
+            for (let t = 0; t < 7; t++) {
+              if (t === i) continue;
+  
+              const targetTableau = gameState.tableau[t];
+              if (targetTableau.length === 0 && card.rank === 'K') {
+                possibleMoves.push({ from: 'tableau', to: 'tableau' });
+                const cardsToMove = tableau.length - j;
+                moveDetails.push(`${card.rank}${SUIT_SYMBOLS[card.suit]} (${cardsToMove} карт) → пустой`);
+              } else if (targetTableau.length > 0 &&
+                card.canPlaceOn(targetTableau[targetTableau.length - 1])) {
+                possibleMoves.push({ from: 'tableau', to: 'tableau' });
+                const target = targetTableau[targetTableau.length - 1];
+                const cardsToMove = tableau.length - j;
+                moveDetails.push(`${card.rank}${SUIT_SYMBOLS[card.suit]} (${cardsToMove}) → ${target.rank}${SUIT_SYMBOLS[target.suit]}`);
+              }
+            }
+          }
+        }
+  
+        // Анализ игры
+        const hiddenCards = gameState.tableau.reduce((sum, pile) =>
+          sum + pile.filter(c => !c.faceUp).length, 0);
+        const cardsInFoundations = gameState.foundations.reduce((sum, f) => sum + f.length, 0);
+        const emptyColumns = gameState.tableau.filter(pile => pile.length === 0).length;
+  
+        let message = '';
+        let severity = 'info';
+  
+        const hasStock = gameState.stock.length > 0;
+        const hasMultipleWaste = gameState.waste.length > 1;
+  
+        if (possibleMoves.length === 0 && !hasStock && !hasMultipleWaste) {
+          severity = 'danger';
+          message = '❌ ТУПИК!\n\n';
+        } else if (possibleMoves.length === 0 && (hasStock || hasMultipleWaste)) {
+          severity = 'warning';
+          message = '⚠️ Переберите колоду!\n\n';
+        } else if (possibleMoves.length < 3 && !hasStock) {
+          severity = 'warning';
+          message = `⚠️ Критично! ${possibleMoves.length} ход(а)\n\n`;
+        } else {
+          message = `✅ Ходов: ${possibleMoves.length}\n\n`;
+        }
+  
+        // Статистика
+        message += `📊 Анализ:\n`;
+        message += `• В фундаментах: ${cardsInFoundations}/52\n`;
+        message += `• Закрыто карт: ${hiddenCards}\n`;
+        message += `• Пустых столбцов: ${emptyColumns}\n`;
+  
+        // Показываем первые 5 ходов
+        if (moveDetails.length > 0 && moveDetails.length <= 5) {
+          message += '\n📋 Возможные ходы:\n';
+          moveDetails.slice(0, 5).forEach((move, i) => {
+            message += `${i + 1}. ${move}\n`;
+          });
+        }
+  
+        showAnalysisMessage(message, severity);
+      }
+  
+      function showAnalysisMessage(message, severity = 'info') {
+        // Удаляем предыдущее сообщение если есть
+        const existingModal = widget.querySelector('.modal-overlay');
+        if (existingModal) {
+          existingModal.remove();
+        }
+  
+        const colors = {
+          info: { bg: '#f0fdf4', border: '#10b981', text: '#166534' },
+          warning: { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' },
+          danger: { bg: '#fee2e2', border: '#dc2626', text: '#991b1b' }
+        };
+  
+        const color = colors[severity];
+  
+        // Создаем модальное окно
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+  
+        const content = document.createElement('div');
+        content.className = 'modal-content';
+        content.style.background = color.bg;
+        content.style.border = `2px solid ${color.border}`;
+        content.style.color = color.text;
+  
+        const messageText = document.createElement('pre');
+        messageText.style.cssText = `
+        margin: 0;
+        font-family: inherit;
+        white-space: pre-wrap;
+        line-height: 1.5;
+      `;
+        messageText.textContent = message;
+  
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = 'Закрыть';
+        closeBtn.className = 'btn btn-primary';
+        closeBtn.style.marginTop = '1rem';
+        closeBtn.style.width = '100%';
+        closeBtn.onclick = () => modal.remove();
+  
+        content.appendChild(messageText);
+        content.appendChild(closeBtn);
+        modal.appendChild(content);
+  
+        widget.querySelector('.game-content').appendChild(modal);
+  
+        // Автоматическое закрытие через 8 секунд
+        setTimeout(() => {
+          if (modal.parentNode) {
+            modal.remove();
+          }
+        }, 8000);
+      }
+  
+      // Таймер
+      let timerStartTime = null;
+      let lastTimerValue = 0;
+  
+      function startTimer() {
+        if (gameState.timerInterval) {
+          clearInterval(gameState.timerInterval);
+          gameState.timerInterval = null;
+        }
+  
+        timerStartTime = Date.now();
+        gameState.startTime = timerStartTime; // Сохраняем для подсчета времени в миллисекундах
+        gameState.timer = 0;
+        lastTimerValue = 0;
+  
+        gameState.timerInterval = setInterval(() => {
+          if (!gameState.isGameWon && timerStartTime) {
+            const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+  
+            if (elapsed !== lastTimerValue) {
+              lastTimerValue = elapsed;
+              gameState.timer = elapsed;
+              updateTimer();
+            }
+          }
+        }, 100);
+      }
+  
+      function stopTimer() {
+        if (gameState.timerInterval) {
+          clearInterval(gameState.timerInterval);
+          gameState.timerInterval = null;
+        }
+  
+        // Сохраняем финальное время в миллисекундах
+        if (gameState.startTime) {
+          gameState.elapsedTime = Date.now() - gameState.startTime;
+        }
+  
+        timerStartTime = null;
+      }
+  
+      function updateTimer() {
+        const minutes = Math.floor(gameState.timer / 60);
+        const seconds = gameState.timer % 60;
+        timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+  
+      function updateStats() {
+        movesEl.textContent = gameState.moves;
+      }
+  
+      // Обработчики кнопок
+      newGameBtn.addEventListener('click', initGame);
+      playAgainBtn.addEventListener('click', initGame);
+      undoBtn.addEventListener('click', undo);
+      checkDeadlockBtn.addEventListener('click', checkDeadlock);
+      startGameBtn.addEventListener('click', initGame);
+  
+      const isEditableTarget = (el) => {
+        if (!el) return false;
+        if (el.isContentEditable) return true;
+        if (!el.tagName) return false;
+        const tag = el.tagName.toLowerCase();
+        return tag === 'input' || tag === 'textarea' || tag === 'select';
+      };
+
+      // Обработчик клавиши Space для новой игры (только внутри виджета и не на полях ввода)
+      document.addEventListener('keydown', function(e) {
+        if (!(e.code === 'Space' || e.keyCode === 32)) return;
+        if (!widget || !widget.contains(e.target)) return;
+        if (isEditableTarget(e.target)) return;
+        e.preventDefault();
+        initGame();
+      });
+  
+      // Предотвращение случайного зума на мобильных
+      if (hasTouch) {
+        document.addEventListener('gesturestart', function (e) {
+          e.preventDefault();
+        });
+  
+        // Предотвращение двойного тапа для зума
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (e) {
+          const now = Date.now();
+          if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+          }
+          lastTouchEnd = now;
+        }, false);
+      }
+  
+      // Локальная инициализация и показ стартового экрана
+      initAPI();
+      // Показываем стартовый экран при загрузке
+      startScreen.classList.remove('hidden');
+  
+      // ==========================================
+      // АВТОМАТИЧЕСКАЯ ОЧИСТКА ПАМЯТИ
+      // ==========================================
+  
+      let cleanupExecuted = false;
+      let containerChecker = null;
+  
+      function performCleanup() {
+        if (cleanupExecuted) return;
+        cleanupExecuted = true;
+  
+        console.log('Solitaire cleanup started...');
+  
+        // Останавливаем все интервалы
+        if (containerChecker) clearInterval(containerChecker);
+        if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+        if (gameState.longPressTimer) clearTimeout(gameState.longPressTimer);
+  
+        // Удаляем обработчики событий с кнопок
+        if (newGameBtn) newGameBtn.removeEventListener('click', initGame);
+        if (playAgainBtn) playAgainBtn.removeEventListener('click', initGame);
+        if (undoBtn) undoBtn.removeEventListener('click', undo);
+        if (checkDeadlockBtn) checkDeadlockBtn.removeEventListener('click', checkDeadlock);
+        if (startGameBtn) startGameBtn.removeEventListener('click', initGame);
+  
+        // Удаляем все модальные окна
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(modal => modal.remove());
+  
+        // Удаляем весь виджет из DOM
+        const widget = document.getElementById('solitaire-widget');
+        if (widget) {
+          widget.remove();
+        }
+  
+        // Очищаем глобальные функции если они были созданы
+        if (window.destroySolitaire) {
+          delete window.destroySolitaire;
+        }
+  
+        console.log('Solitaire cleanup completed');
+      }
+  
+      // Проверка наличия контейнера в DOM
+      containerChecker = setInterval(() => {
+        const widget = document.getElementById('solitaire-widget');
+        if (!widget || !document.body.contains(widget)) {
+          performCleanup();
+        }
+      }, 1000);
+  
+      // Экспортируем функцию для ручной очистки
+      window.destroySolitaire = performCleanup;
+      })(); // End of game IIFE
+    } // End of initializeGame function
+  
+    initializeGame();
+  } // End of setupGame function
+  
+  // Check if DOM is already loaded, or wait for it
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupGame);
+  } else {
+    setupGame();
+  }
+  })();
+  </script>
+
+
+

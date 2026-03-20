@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тактический Бой</title>
+    <style>
+        /* Base reset */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            color: #1f2937;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Контейнер игры, адаптивный, стилизован под widget из solitare */
+        .tank-duel-container {
+            width: 100%;
+            max-width: 800px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+        }
+
+        /* Заголовок в стиле скина light blue */
+        .game-header {
+            background: linear-gradient(135deg, #2563eb, #4f8dff);
+            color: #ffffff;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0;
+        }
+
+        /* Статистика */
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            color: #dc2626;
+            /* heart color */
+        }
+
+        .stat-value.timer {
+            color: #10b981;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Игровое поле (сукно) */
+        .game-content {
+            background: #14532d;
+            /* Темно-зеленый фон */
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        canvas {
+            background: #064e3b;
+            border: 3px solid #065f46;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.5);
+            display: block;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            cursor: crosshair;
+        }
+
+        /* Лог событий стилизован под блок */
+        .log-container {
+            width: 600px;
+            max-width: 100%;
+            height: 100px;
+            margin-top: 1rem;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.85rem;
+            color: #475569;
+            overflow-y: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .log-line {
+            margin: 4px 0;
+            padding-bottom: 2px;
+            border-bottom: 1px dashed #cbd5e1;
+            animation: fadeInLog 0.3s ease;
+        }
+
+        .log-line:last-child {
+            border-bottom: none;
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        @keyframes fadeInLog {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Экраны и оверлеи */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.hidden {
+            display: none !important;
+        }
+
+        .modal {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: #2563eb;
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            color: #4b5563;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            text-align: left;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal ul {
+            text-align: left;
+            margin-top: 0.5rem;
+            color: #4b5563;
+            font-size: 0.95rem;
+            padding-left: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.875rem 2.5rem;
+            background: linear-gradient(135deg, #2563eb, #4f8dff);
+            color: white;
+            border: none;
+            border-radius: 0.625rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            transition: all 0.2s ease;
+            margin-top: 1.5rem;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="tank-duel-container">
+
+        <div class="game-header">
+            <h1 class="game-title">Тактический Бой</h1>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <span class="stat-label">Игрок</span>
+                    <span class="stat-value" id="playerLivesDisplay"></span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Время</span>
+                    <span class="stat-value timer" id="timerDisplay" style="color:#1f2937;">00:00</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">ИИ</span>
+                    <span class="stat-value" id="enemyLivesDisplay"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+            <div class="log-container" id="log"></div>
+
+            <!-- Стартовый экран -->
+            <div class="overlay" id="startScreen">
+                <div class="modal">
+                    <h2>Тактический Бой</h2>
+                    <p>Добро пожаловать в тактическую дуэль. Ваша задача — уничтожить ИИ-противника.</p>
+                    <p><b>Управление:</b></p>
+                    <ul>
+                        <li><b>WASD</b> или <b>Стрелки</b> — движение (зеленый танк).</li>
+                        <li><b>Мышь</b> — прицеливание.</li>
+                        <li><b>ЛКМ</b> или <b>Пробел</b> — выстрел.</li>
+                    </ul>
+                    <p><b>Препятствия:</b><br />
+                        Красные кирпичные стены (2 попадания для разрушения).<br />
+                        Серые бетонные блоки (непробиваемые).
+                    </p>
+                    <button class="btn" onclick="startGame()">Начать игру</button>
+                </div>
+            </div>
+
+            <!-- Экран окончания игры -->
+            <div class="overlay hidden" id="endScreen">
+                <div class="modal">
+                    <h2 id="endTitle">Победа!</h2>
+                    <p id="endDesc">Игрок уничтожил врага.</p>
+                    <button class="btn" onclick="startGame()">Сыграть снова</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const logEl = document.getElementById('log');
+
+        const GRID_SIZE = 15;
+        const CELL_SIZE = 40;
+        // canvas sizes are preset to 600x600
+
+        let map = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
+        let gameState = 'start'; // start, playing, end
+        let gameTime = 0;
+        let lastTimestamp = 0;
+
+        let keys = {};
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+
+        let bullets = [];
+        let particles = [];
+
+        let player = {
+            type: 'player',
+            color: '#10b981', // green
+            x: 0, y: 0, startX: 0, startY: 0,
+            r: 12, speed: 150, angle: 0, turretAngle: 0,
+            lives: 3, cooldown: 0, vx: 0, vy: 0
+        };
+
+        let enemy = {
+            type: 'enemy',
+            color: '#ef4444', // red
+            x: 0, y: 0, startX: 0, startY: 0,
+            r: 12, speed: 110, angle: Math.PI, turretAngle: Math.PI,
+            lives: 3, cooldown: 0, vx: 0, vy: 0,
+            moveTime: 0, lastPosX: 0, lastPosY: 0, lastPosTime: 0
+        };
+
+        // --- AUDIO (опционально) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = AudioContext ? new AudioContext() : null;
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            let now = audioCtx.currentTime;
+            if (type === 'shoot') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(250, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'hit') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.exponentialRampToValueAtTime(20, now + 0.3);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'destroy') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(80, now);
+                osc.frequency.exponentialRampToValueAtTime(10, now + 0.4);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+        }
+
+        // --- ЛОГ ---
+        function logEvent(msg) {
+            const el = document.createElement('div');
+            el.className = 'log-line';
+            let timeStr = document.getElementById('timerDisplay').innerText;
+            el.innerText = `[${timeStr}] ${msg}`;
+            logEl.appendChild(el);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // --- ВВОД ---
+        window.addEventListener('keydown', e => {
+            if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                if (gameState === 'playing') e.preventDefault();
+            }
+            keys[e.code] = true;
+
+            if (e.code === 'Space' && gameState === 'playing' && player.cooldown <= 0) {
+                shoot(player);
+            }
+        });
+
+        window.addEventListener('keyup', e => {
+            keys[e.code] = false;
+        });
+
+        canvas.addEventListener('mousemove', e => {
+            let rect = canvas.getBoundingClientRect();
+            let scaleX = canvas.width / rect.width;
+            let scaleY = canvas.height / rect.height;
+            mouseX = (e.clientX - rect.left) * scaleX;
+            mouseY = (e.clientY - rect.top) * scaleY;
+        });
+
+        canvas.addEventListener('mousedown', e => {
+            if (gameState === 'playing' && player.cooldown <= 0) {
+                shoot(player);
+            }
+        });
+
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // --- МЕХАНИКА ---
+        function generateMap() {
+            map = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
+            // Случайная генерация блоков
+            for (let y = 1; y < GRID_SIZE - 1; y++) {
+                for (let x = 1; x < GRID_SIZE - 1; x++) {
+                    // Оставляем центр более-менее чистым
+                    if (x > 5 && x < 9 && y > 5 && y < 9 && Math.random() > 0.1) continue;
+
+                    if (Math.random() < 0.20) {
+                        map[y][x] = { type: 1, hp: 2 }; // Разрушаемый
+                    } else if (Math.random() < 0.10) {
+                        map[y][x] = { type: 2 }; // Бетон
+                    }
+                }
+            }
+            // Очищаем углы для спавна
+            for (let pos of [[1, 1], [1, 2], [2, 1], [GRID_SIZE - 2, GRID_SIZE - 2], [GRID_SIZE - 2, GRID_SIZE - 3], [GRID_SIZE - 3, GRID_SIZE - 2]]) {
+                map[pos[0]][pos[1]] = 0;
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('playerLivesDisplay').innerText = player.lives;
+            document.getElementById('enemyLivesDisplay').innerText = enemy.lives;
+        }
+
+        function startGame() {
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+
+            generateMap();
+
+            player.lives = 3;
+            player.x = CELL_SIZE * 1.5; player.y = CELL_SIZE * 1.5;
+            player.startX = player.x; player.startY = player.y;
+            player.cooldown = 0; player.vx = 0; player.vy = 0;
+
+            enemy.lives = 3;
+            enemy.x = CELL_SIZE * (GRID_SIZE - 1.5); enemy.y = CELL_SIZE * (GRID_SIZE - 1.5);
+            enemy.startX = enemy.x; enemy.startY = enemy.y;
+            enemy.cooldown = 0; enemy.vx = 0; enemy.vy = 0;
+            enemy.moveTime = 0.5;
+
+            bullets = [];
+            particles = [];
+            gameTime = 0;
+            lastTimestamp = 0;
+
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.add('hidden');
+
+            logEl.innerHTML = '';
+            document.getElementById('timerDisplay').innerText = '00:00';
+            updateStats();
+
+            gameState = 'playing';
+            logEvent('Дуэль началась!');
+        }
+
+        function checkWallCollision(cx, cy, r) {
+            if (cx - r < 0 || cx + r > canvas.width || cy - r < 0 || cy + r > canvas.height) return true;
+
+            let minCol = Math.floor((cx - r) / CELL_SIZE);
+            let maxCol = Math.floor((cx + r) / CELL_SIZE);
+            let minRow = Math.floor((cy - r) / CELL_SIZE);
+            let maxRow = Math.floor((cy + r) / CELL_SIZE);
+
+            for (let rIdx = minRow; rIdx <= maxRow; rIdx++) {
+                for (let cIdx = minCol; cIdx <= maxCol; cIdx++) {
+                    if (rIdx >= 0 && rIdx < GRID_SIZE && cIdx >= 0 && cIdx < GRID_SIZE) {
+                        if (map[rIdx][cIdx] !== 0) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function lineOfSight(x1, y1, x2, y2) {
+            let dist = Math.hypot(x2 - x1, y2 - y1);
+            let steps = Math.ceil(dist / 10);
+            for (let i = 0; i < steps; i++) {
+                let cx = x1 + (x2 - x1) * i / steps;
+                let cy = y1 + (y2 - y1) * i / steps;
+                if (checkWallCollision(cx, cy, 2)) return false;
+            }
+            return true;
+        }
+
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 150,
+                    vy: (Math.random() - 0.5) * 150,
+                    life: Math.random() * 0.3 + 0.2, // короткая жизнь
+                    maxLife: 0.5,
+                    color: color,
+                    size: 2 + Math.random() * 3
+                });
+            }
+        }
+
+        function shoot(shooter) {
+            let tAngle = shooter.turretAngle;
+            bullets.push({
+                x: shooter.x + Math.cos(tAngle) * 18,
+                y: shooter.y + Math.sin(tAngle) * 18,
+                vx: Math.cos(tAngle) * 350,
+                vy: Math.sin(tAngle) * 350,
+                shooter: shooter.type,
+                active: true,
+                r: 3.5,
+                color: shooter.color
+            });
+            shooter.cooldown = 0.5; // 0.5 сек кд
+            playSound('shoot');
+        }
+
+        function setEndGame(winner) {
+            gameState = 'end';
+            document.getElementById('endScreen').classList.remove('hidden');
+            if (winner === 'player') {
+                document.getElementById('endTitle').innerText = 'Победа! 🎉';
+                document.getElementById('endTitle').style.color = '#10b981';
+                document.getElementById('endDesc').innerText = 'Вы технично переиграли оппонента.';
+                logEvent('ПОБЕДА: Вражеский танк уничтожен.');
+            } else {
+                document.getElementById('endTitle').innerText = 'Поражение 💥';
+                document.getElementById('endTitle').style.color = '#ef4444';
+                document.getElementById('endDesc').innerText = 'ИИ оказался хитрее. Попробуйте еще раз.';
+                logEvent('ПОРАЖЕНИЕ: Ваш танк уничтожен.');
+            }
+        }
+
+        function updateAI(dt) {
+            enemy.cooldown -= dt;
+            enemy.moveTime -= dt;
+
+            // Предсказание
+            let distToPlayer = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+            let travelTime = distToPlayer / 350;
+            let predictX = player.x + player.vx * travelTime * 0.9;
+            let predictY = player.y + player.vy * travelTime * 0.9;
+
+            // Прицеливание ИИ
+            enemy.turretAngle = Math.atan2(predictY - enemy.y, predictX - enemy.x);
+
+            let hasLOS = lineOfSight(enemy.x, enemy.y, predictX, predictY) || lineOfSight(enemy.x, enemy.y, player.x, player.y);
+
+            if (hasLOS && enemy.cooldown <= 0) shoot(enemy);
+
+            // Застревание ИИ устранено
+            enemy.lastPosTime += dt;
+            if (enemy.lastPosTime > 1.0) {
+                if (Math.hypot(enemy.x - enemy.lastPosX, enemy.y - enemy.lastPosY) < 10) {
+                    enemy.angle += Math.PI / 2 + (Math.random() - 0.5); // разворот
+                    enemy.moveTime = 0.8;
+                }
+                enemy.lastPosX = enemy.x;
+                enemy.lastPosY = enemy.y;
+                enemy.lastPosTime = 0;
+            }
+
+            let needsDodge = false;
+            // Уклонение
+            for (let b of bullets) {
+                if (b.shooter === 'player' && b.active) {
+                    let rx = enemy.x - b.x; let ry = enemy.y - b.y;
+                    let vDot = (rx * b.vx + ry * b.vy) / Math.hypot(b.vx, b.vy);
+                    if (vDot > 0 && vDot < 200) { // летит в нас и близко
+                        let projx = b.x + (b.vx / Math.hypot(b.vx, b.vy)) * vDot;
+                        let projy = b.y + (b.vy / Math.hypot(b.vx, b.vy)) * vDot;
+                        if (Math.hypot(enemy.x - projx, enemy.y - projy) < enemy.r + b.r + 15) {
+                            enemy.angle = Math.atan2(enemy.y - projy, enemy.x - projx) + (Math.random() - 0.5) * 0.5;
+                            enemy.moveTime = 0.4;
+                            needsDodge = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!needsDodge && enemy.moveTime <= 0) {
+                enemy.moveTime = 0.5 + Math.random() * 1.5;
+                if (!hasLOS) {
+                    // Ищем игрока
+                    enemy.angle = Math.atan2(player.y - enemy.y, player.x - enemy.x) + (Math.random() - 0.5) * 1.5;
+                } else {
+                    if (enemy.lives === 1) { // Оборона
+                        enemy.angle = Math.atan2(enemy.y - player.y, enemy.x - player.x) + (Math.random() - 0.5);
+                    } else { // Стрэйф
+                        enemy.angle = Math.atan2(player.y - enemy.y, player.x - enemy.x) + (Math.random() > 0.5 ? 1 : -1) * Math.PI / 2;
+                    }
+                }
+            }
+
+            // Движение
+            let nx = enemy.x + Math.cos(enemy.angle) * enemy.speed * dt;
+            let colX = checkWallCollision(nx, enemy.y, enemy.r);
+            if (!colX) enemy.x = nx; else enemy.angle = Math.PI - enemy.angle;
+
+            let ny = enemy.y + Math.sin(enemy.angle) * enemy.speed * dt;
+            let colY = checkWallCollision(enemy.x, ny, enemy.r);
+            if (!colY) enemy.y = ny; else enemy.angle = -enemy.angle;
+
+            // Вращение корпуса по направлению движения
+            if (!colX || !colY) enemy.angleBody = enemy.angle;
+        }
+
+        function update(dt) {
+            if (gameState !== 'playing') return;
+
+            // Таймер
+            gameTime += dt;
+            let min = Math.floor(gameTime / 60).toString().padStart(2, '0');
+            let sec = Math.floor(gameTime % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${min}:${sec}`;
+
+            // --- Игрок ---
+            player.cooldown -= dt;
+            let dx = 0, dy = 0;
+            if (keys['KeyW'] || keys['ArrowUp']) dy = -1;
+            if (keys['KeyS'] || keys['ArrowDown']) dy = 1;
+            if (keys['KeyA'] || keys['ArrowLeft']) dx = -1;
+            if (keys['KeyD'] || keys['ArrowRight']) dx = 1;
+
+            let length = Math.hypot(dx, dy);
+            if (length > 0) { dx /= length; dy /= length; }
+
+            player.vx = dx * player.speed;
+            player.vy = dy * player.speed;
+
+            if (length > 0) {
+                player.angle = Math.atan2(dy, dx);
+                let nx = player.x + player.vx * dt;
+                let ny = player.y + player.vy * dt;
+                if (!checkWallCollision(nx, player.y, player.r)) player.x = nx;
+                if (!checkWallCollision(player.x, ny, player.r)) player.y = ny;
+            }
+
+            player.turretAngle = Math.atan2(mouseY - player.y, mouseX - player.x);
+
+            // --- ИИ ---
+            updateAI(dt);
+
+            // --- Танки: столкновение ---
+            let distT = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+            if (distT < player.r + enemy.r) {
+                let overlap = player.r + enemy.r - distT;
+                let px = ((player.x - enemy.x) / distT) * overlap / 2;
+                let py = ((player.y - enemy.y) / distT) * overlap / 2;
+                player.x += px; player.y += py;
+                enemy.x -= px; enemy.y -= py;
+            }
+
+            // --- Снаряды ---
+            for (let b of bullets) {
+                if (!b.active) continue;
+                b.x += b.vx * dt;
+                b.y += b.vy * dt;
+
+                // Столкновение со стенами
+                if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) { b.active = false; continue; }
+                let c = Math.floor(b.x / CELL_SIZE);
+                let r = Math.floor(b.y / CELL_SIZE);
+                if (map[r] && map[r][c] !== 0) {
+                    b.active = false;
+                    createParticles(b.x, b.y, '#fbbf24'); // искры
+                    playSound('destroy');
+
+                    if (map[r][c].type === 1) { // Кирпич
+                        map[r][c].hp--;
+                        if (map[r][c].hp <= 0) {
+                            map[r][c] = 0;
+                            logEvent(b.shooter === 'player' ? 'Игрок пробил стену!' : 'ИИ разрушил стену.');
+                        }
+                    }
+                    continue;
+                }
+
+                // Попадание по танкам
+                const checkHit = (tank) => {
+                    if (b.shooter !== tank.type && Math.hypot(b.x - tank.x, b.y - tank.y) < tank.r + b.r) {
+                        b.active = false;
+                        tank.lives--;
+                        createParticles(tank.x, tank.y, tank.color);
+                        playSound('hit');
+                        updateStats();
+
+                        let victim = tank.type === 'player' ? 'Игрок' : 'ИИ-танк';
+                        let attacker = b.shooter === 'player' ? 'Игрока' : 'ИИ';
+                        logEvent(`Снаряд ${attacker} поразил ${victim}!`);
+
+                        if (tank.lives > 0) {
+                            tank.x = tank.startX; tank.y = tank.startY; // respawn
+                            tank.cooldown = 1.0; // shield/cooldown for respawn
+                        } else {
+                            setEndGame(b.shooter);
+                        }
+                    }
+                };
+                checkHit(player);
+                checkHit(enemy);
+            }
+            bullets = bullets.filter(b => b.active);
+
+            // Частицы
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].life -= dt;
+                particles[i].x += particles[i].vx * dt;
+                particles[i].y += particles[i].vy * dt;
+                if (particles[i].life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        function drawTank(tank) {
+            ctx.save();
+            ctx.translate(tank.x, tank.y);
+
+            // Тень корпуса
+            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+
+            ctx.rotate(tank.angle !== undefined && (tank.vx || tank.vy) ? tank.angle : (tank.angleBody || tank.angle)); // Выравнивание по движению
+
+            // Гусеницы
+            ctx.fillStyle = '#374151'; // dark gray
+            ctx.fillRect(-18, -15, 36, 6);
+            ctx.fillRect(-18, 9, 36, 6);
+
+            ctx.strokeStyle = '#1f2937';
+            ctx.lineWidth = 1;
+            for (let i = -16; i <= 16; i += 4) {
+                ctx.beginPath(); ctx.moveTo(i, -15); ctx.lineTo(i, -9); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(i, 9); ctx.lineTo(i, 15); ctx.stroke();
+            }
+
+            // Корпус плоский
+            ctx.fillStyle = tank.color;
+            ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.rect(-14, -11, 28, 22);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Башня
+            ctx.save();
+            ctx.translate(tank.x, tank.y);
+            ctx.rotate(tank.turretAngle);
+
+            // Дуло
+            ctx.fillStyle = '#9ca3af';
+            ctx.strokeStyle = '#4b5563';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.rect(0, -3, 20, 6);
+            ctx.fill(); ctx.stroke();
+
+            // Купол башни
+            ctx.beginPath();
+            ctx.arc(0, 0, 7, 0, Math.PI * 2);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function draw() {
+            // Фон-сукно
+            ctx.fillStyle = '#14532d'; // #14532d from CSS
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Сетка (неявная, стилизует под сукно)
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                ctx.beginPath(); ctx.moveTo(i * CELL_SIZE, 0); ctx.lineTo(i * CELL_SIZE, canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i * CELL_SIZE); ctx.lineTo(canvas.width, i * CELL_SIZE); ctx.stroke();
+            }
+
+            // Карта (стены)
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    let tile = map[r][c];
+                    if (tile !== 0) {
+                        let x = c * CELL_SIZE;
+                        let y = r * CELL_SIZE;
+
+                        ctx.save();
+                        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+                        ctx.shadowBlur = 4;
+                        ctx.shadowOffsetX = 2;
+                        ctx.shadowOffsetY = 2;
+
+                        if (tile.type === 1) { // Кирпич
+                            ctx.fillStyle = tile.hp === 2 ? '#b91c1c' : '#7f1d1d';
+                            ctx.fillRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+
+                            ctx.strokeStyle = tile.hp === 2 ? '#fca5a5' : '#ef4444';
+                            ctx.lineWidth = 1.5;
+                            ctx.beginPath(); ctx.rect(x + 4, y + 4, CELL_SIZE - 8, CELL_SIZE - 8); ctx.stroke();
+
+                            // Узор (внутренняя часть)
+                            ctx.beginPath();
+                            ctx.moveTo(x + CELL_SIZE / 2, y + 8);
+                            ctx.lineTo(x + CELL_SIZE - 8, y + CELL_SIZE / 2);
+                            ctx.lineTo(x + CELL_SIZE / 2, y + CELL_SIZE - 8);
+                            ctx.lineTo(x + 8, y + CELL_SIZE / 2);
+                            ctx.closePath();
+                            ctx.stroke();
+
+                        } else if (tile.type === 2) { // Металл
+                            ctx.fillStyle = '#4b5563';
+                            ctx.fillRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+
+                            ctx.fillStyle = '#9ca3af';
+                            ctx.fillRect(x + 4, y + 4, CELL_SIZE - 8, CELL_SIZE - 8);
+
+                            // Болты
+                            ctx.fillStyle = '#1f2937';
+                            ctx.beginPath(); ctx.arc(x + 8, y + 8, 2, 0, Math.PI * 2); ctx.fill();
+                            ctx.beginPath(); ctx.arc(x + CELL_SIZE - 8, y + 8, 2, 0, Math.PI * 2); ctx.fill();
+                            ctx.beginPath(); ctx.arc(x + 8, y + CELL_SIZE - 8, 2, 0, Math.PI * 2); ctx.fill();
+                            ctx.beginPath(); ctx.arc(x + CELL_SIZE - 8, y + CELL_SIZE - 8, 2, 0, Math.PI * 2); ctx.fill();
+                        }
+                        ctx.restore();
+                    }
+                }
+            }
+
+            // Снаряды
+            for (let b of bullets) {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                ctx.fillStyle = b.color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.shadowColor = b.color;
+                ctx.shadowBlur = 10;
+                ctx.fill();
+                ctx.shadowColor = 'transparent';
+            }
+
+            // Танки
+            if (player.lives > 0) drawTank(player);
+            if (enemy.lives > 0) drawTank(enemy);
+
+            // Частицы
+            for (let p of particles) {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life / p.maxLife;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function gameLoop(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            let dt = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
+
+            if (dt > 0.1) dt = 0.1; // защита от фризов
+
+            try {
+                update(dt);
+                draw();
+            } catch (e) {
+                if (!window.errorLogged) {
+                    logEvent('CRASH: ' + e.message);
+                    window.errorLogged = true;
+                }
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Запуск цикла
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+
+</html>
